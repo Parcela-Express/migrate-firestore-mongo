@@ -23,8 +23,7 @@ function printStatusTable(statusItems) {
     const table = new Table({ head: useFileHash ? ["Filename", "Hash", "Applied At"] : ["Filename", "Applied At"]});
     statusItems.forEach(item => table.push(_.values(item)));
     console.log(table.toString());
-  })
-  
+  });
 }
 
 program.version(pkgjson.version);
@@ -70,10 +69,12 @@ program
       const firestoreConnection = await migrateFirestoreMongo.firestore.connect();
       const mongoConnection = await migrateFirestoreMongo.mongo.connect();
 
-      await migrateFirestoreMongo.importData(firestoreConnection, mongoConnection);
+      const migrated = await migrateFirestoreMongo.importData(firestoreConnection, mongoConnection);
 
-      printMigrated(migrated);      
+      printMigrated(migrated);
     } catch (e) {
+      console.log(e);
+
       handleError(err);
       printMigrated(err.migrated);
     }
@@ -92,7 +93,7 @@ program
     try {
       const statusItems = await migrateFirestoreMongo.status(mongoConnection.db);
 
-      printStatusTable(statusItems)
+      await printStatusTable(statusItems)
     } catch (err) {
       handleError(err);
     }

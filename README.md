@@ -102,77 +102,25 @@ Created: migrations/20160608155948-blacklist_the_beatles.js
 A new migration file is created in the 'migrations' directory:
 ````javascript
 module.exports = {
-  up(db, client) {
-    // TODO write your migration here. Return a Promise (and/or use async & await).
-    // See https://github.com/seppevs/migrate-firestore-mongo/#creating-a-new-migration-script
-    // Example:
-    // return db.collection('albums').updateOne({artist: 'The Beatles'}, {$set: {blacklisted: true}});
+  search(firestoreConnection) {
+    // TODO write your migration here. Return a stream
   },
 
-  down(db, client) {
-    // TODO write the statements to rollback your migration (if possible)
-    // Example:
-    // return db.collection('albums').updateOne({artist: 'The Beatles'}, {$set: {blacklisted: false}});
+  insert(mongodbConnection) {
+    // TODO write the insert statements to mongo
   }
 };
 ````
 
-Edit this content so it actually performs changes to your database.
-The ````db```` object contains [the official MongoDB db object](https://www.npmjs.com/package/mongodb)
-The ````client```` object is a [MongoClient](https://mongodb.github.io/node-mongodb-native/3.3/api/MongoClient.html) instance (which you can omit if you don't use it).
-
-There are 3 options to implement the `up` function of your migration: 
-1. Return a Promises
-2. Use async-await 
-3. Call a callback (DEPRECATED!)
-
-Always make sure the implementation matches the function signature:
-* `function up(db, client) { /* */ }` should return `Promise`
-* `function async up(db, client) { /* */ }` should contain `await` keyword(s) and return `Promise`
-* `function up(db, client, next) { /* */ }` should callback `next`
-
-#### Example 1: Return a Promise
+#### Example: Return a stream
 ````javascript
 module.exports = {
-  up(db) {
-    return db.collection('albums').updateOne({artist: 'The Beatles'}, {$set: {blacklisted: true}});
+  async search(firestoreConnection) {
+    return db.collection('albums').stream();
   },
 
-  down(db) {
-    return db.collection('albums').updateOne({artist: 'The Beatles'}, {$set: {blacklisted: false}});
-  }
-};
-````
-
-#### Example 2: Use async & await
-Async & await is especially useful if you want to perform multiple operations against your MongoDB in one migration.
-
-````javascript
-module.exports = {
-  async up(db) {
-    await db.collection('albums').updateOne({artist: 'The Beatles'}, {$set: {blacklisted: true}});
-    await db.collection('albums').updateOne({artist: 'The Doors'}, {$set: {stars: 5}});
-  },
-
-  async down(db) {
-    await db.collection('albums').updateOne({artist: 'The Doors'}, {$set: {stars: 0}});
-    await db.collection('albums').updateOne({artist: 'The Beatles'}, {$set: {blacklisted: false}});
-  },
-};
-````
-
-#### Example 3: Call a callback (deprecated)
-Callbacks are supported for backwards compatibility.
-New migration scripts should be written using Promises and/or async & await. It's easier to read and write.
-
-````javascript
-module.exports = {
-  up(db, callback) {
-    return db.collection('albums').updateOne({artist: 'The Beatles'}, {$set: {blacklisted: true}}, callback);
-  },
-
-  down(db, callback) {
-    return db.collection('albums').updateOne({artist: 'The Beatles'}, {$set: {blacklisted: false}}, callback);
+  async insert(rows, mongodbConnection) {
+    return mongodbConnection.collection('albums').updateOne({artist: 'The Beatles'}, {$set: {blacklisted: false}});
   }
 };
 ````
@@ -244,46 +192,6 @@ $ npm init --yes
 Now you have a package.json file, and you can install your favorite npm modules that might help you in your migration scripts.
 For example, one of the very useful [promise-fun](https://github.com/sindresorhus/promise-fun) npm modules.
 
-### Using MongoDB's Transactions API
-You can make use of the [MongoDB Transaction API](https://docs.mongodb.com/manual/core/transactions/) in your migration scripts.
-
-Note: this requires both:
-- MongoDB 4.0 or higher 
-- migrate-firestore-mongo 7.0.0 or higher
-
-migrate-firestore-mongo will call your migration `up` function with a second argument: `client`.
-This `client` argument is an [MongoClient](https://mongodb.github.io/node-mongodb-native/3.3/api/MongoClient.html) instance, it gives you access to the `startSession` function.
-
-Example:
-
-````javascript
-module.exports = {
-  async up(db, client) {
-    const session = client.startSession();
-    try {
-        await session.withTransaction(async () => {
-            await db.collection('albums').updateOne({artist: 'The Beatles'}, {$set: {blacklisted: true}});
-            await db.collection('albums').updateOne({artist: 'The Doors'}, {$set: {stars: 5}});
-        });
-    } finally {
-      await session.endSession();
-    }
-  },
-
-  async down(db, client) {
-    const session = client.startSession();
-    try {
-        await session.withTransaction(async () => {
-            await db.collection('albums').updateOne({artist: 'The Beatles'}, {$set: {blacklisted: false}});
-            await db.collection('albums').updateOne({artist: 'The Doors'}, {$set: {stars: 0}});
-        });
-    } finally {
-      await session.endSession();
-    }
-  },
-};
-````
-
 ### Using a file hash algorithm to enable re-running updated files
 There are use cases where it may make sense to not treat scripts as immutable items.  An example would be a simple collection with lookup values where you just can wipe and recreate the entire collection all at the same time.
 
@@ -319,7 +227,7 @@ const {
   create,
   database,
   config,
-  up,  
+  importData,  
   status
 } = require('migrate-firestore-mongo');
 ```
@@ -370,7 +278,7 @@ When using this feature, please do this at the very beginning of your program.
 
 Example:
 ```javascript
-const { config, up } = require('../lib/migrate-firestore-mongo');
+const { config, importData } = require('../lib/migrate-firestore-mongo');
 
 const myConfig = {
     firestore: {
@@ -390,35 +298,5 @@ const myConfig = {
 config.set(myConfig);
 
 // then, use the API as you normally would, eg:
-await up();
-```
-
-### `up(MongoDb, MongoClient) → Promise<Array<fileName>>`
-
-Apply all pending migrations
-
-```javascript
-const { db, client } = await database.connect();
-const migrated = await up(db, client);
-migrated.forEach(fileName => console.log('Migrated:', fileName));
-```
-
-If an an error occurred, the promise will reject and won't continue with the rest of the pending migrations.
-
-### `status(MongoDb) → Promise<Array<{ fileName, appliedAt }>>`
-
-Check which migrations are applied (or not.
-
-```javascript
-const { db } = await database.connect();
-const migrationStatus = await status(db);
-migrationStatus.forEach(({ fileName, appliedAt }) => console.log(fileName, ':', appliedAt));
-```
-
-### `client.close() → Promise`
-Close the database connection
-
-```javascript
-const { db, client } = await database.connect();
-await client.close();
+await importData();
 ```
