@@ -11,6 +11,3 @@ coverage
 
 # Ignore .env files
 .env
-
-# Examples folder
-examples

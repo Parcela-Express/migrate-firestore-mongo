@@ -1,0 +1,12 @@
+{
+  "name": "migrate-firestore-mongo-examples",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "exec": "npx env-cmd ../bin/migrate-firestore-mongo.js"
+  },
+  "devDependencies": {
+    "env-cmd": "^10.1.0"
+  }
+}

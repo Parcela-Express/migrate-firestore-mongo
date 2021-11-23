@@ -1,6 +1,6 @@
 {
   "name": "migrate-firestore-mongo",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A database import/export data tool from Firestore to MongoDB in Node",
   "main": "lib/migrate-firestore-mongo.js",
   "bin": {
