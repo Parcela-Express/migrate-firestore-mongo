@@ -4,7 +4,7 @@ migrate-firestore-mongo is a database migration tool for MongoDB running in Node
     
 ## Installation
 ````bash
-$ npm install -g migrate-firestore-mongo
+$ npm install -g @parcelaexpress/migrate-firestore-mongo
 ````
 
 ## CLI Usage
