@@ -4,6 +4,6 @@ module.exports = {
   },
 
   async insert(mongoDbConnection) {
-    // TODO write the statements to rollback your migration (if possible)
+    // TODO write the statements to insert data
   }
 };
