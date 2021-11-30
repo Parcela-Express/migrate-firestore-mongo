@@ -72,9 +72,7 @@ program
       const migrated = await migrateFirestoreMongo.importData(firestoreConnection, mongoConnection);
 
       printMigrated(migrated);
-    } catch (e) {
-      console.log(e);
-
+    } catch (err) {
       handleError(err);
       printMigrated(err.migrated);
     }
