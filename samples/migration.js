@@ -3,7 +3,7 @@ module.exports = {
     // TODO write firestore migration here. Must be returns a stream    
   },
 
-  async insert(mongoDbConnection) {
+  async insert(rows, mongoDbConnection) {
     // TODO write the statements to insert data
   }
 };
