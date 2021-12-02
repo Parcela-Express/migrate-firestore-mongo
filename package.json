@@ -1,6 +1,6 @@
 {
   "name": "@parcelaexpress/migrate-firestore-mongo",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A database import/export data tool from Firestore to MongoDB in Node",
   "main": "lib/migrate-firestore-mongo.js",
   "bin": {
