@@ -52,6 +52,7 @@ Edit the migrate-firestore-mongo-config.js file. An object or promise can be ret
 
 module.exports = {
   firestore: {
+    isLocal: false,
     applicationCredentials: 'YOURFIREBASEAPPLICATIONCREDENTIALS',
     serviceAccount: 'YOURFIREBASESERVICEACCOUNT',
     privateKey: 'YOURFIREBASEPRIVATEKEY'
@@ -282,9 +283,10 @@ const { config, importData } = require('../lib/migrate-firestore-mongo');
 
 const myConfig = {
     firestore: {
-      applicationCredentials: 'YOURFIREBASEAPPLICATIONCREDENTIALS',
-      serviceAccount: 'YOURFIREBASESERVICEACCOUNT',
-      privateKey: 'YOURFIREBASEPRIVATEKEY'
+      isLocal: true,
+      localProjectId: 'fake-project-id',
+      localApiKey: 'fake-project-api-key',
+      localHost: 'localhost:8080'
     },
     mongodb: {
         url: "mongodb://localhost:27017/mydatabase",

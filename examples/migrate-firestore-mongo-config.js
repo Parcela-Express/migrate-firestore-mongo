@@ -1,5 +1,6 @@
 const config = {
   firestore: {
+    isLocal: false,
     applicationCredentials: process.env.FIREBASE_APPLICATION_CREDENTIALS,
     serviceAccount: process.env.FIREBASE_SERVICE_ACCOUNT,
     privateKey: process.env.FIREBASE_PRIVATE_KEY
